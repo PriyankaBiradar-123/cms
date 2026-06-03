@@ -10,13 +10,17 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 WORKDIR /var/www/html
 
 # Copy project files
-COPY . .
+COPY .
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port
-EXPOSE 8080
+# Make Apache listen on Railway's PORT
+RUN sed -i 's/Listen 80/Listen ${PORT}/g' /etc/apache2/ports.conf
+RUN sed -i 's/:80/:${PORT}/g' /etc/apache2/sites-available/000-default.conf
+
+# Expose port for Railway
+EXPOSE ${PORT}
 
 # Start Apache
 CMD ["apache2-foreground"]
